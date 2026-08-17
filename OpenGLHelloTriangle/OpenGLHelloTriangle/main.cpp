@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,6 +13,21 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+std::string loadShaderSource(const char* filePath)
+{
+    std::ifstream file(filePath);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open shader file: " << filePath << std::endl;
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+
+    return buffer.str();
 }
 
 int main()
@@ -39,6 +57,7 @@ int main()
 
 
     // VS
+    /*
     const char* vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "void main()\n"
@@ -48,6 +67,13 @@ int main()
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    */
+
+    std::string vertexShaderSource = loadShaderSource("shaders/vertex.glsl");
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    const char* vertexShaderSourceCStr = vertexShaderSource.c_str();
+    glShaderSource(vertexShader, 1 ,&vertexShaderSourceCStr ,NULL);
     glCompileShader(vertexShader);
 
     int success;
@@ -60,6 +86,7 @@ int main()
     }
 
     // FS
+    /*
     const char* fragmentShaderSource = "#version 330 core\n"
         "out vec4 FragColor;\n"
         "void main()\n"
@@ -69,6 +96,13 @@ int main()
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    */
+
+    std::string fragmentShaderSource = loadShaderSource("shaders/fragment.glsl");
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char* fragmentShaderSourceCStr = fragmentShaderSource.c_str();
+    glShaderSource(fragmentShader, 1, &fragmentShaderSourceCStr, NULL);
     glCompileShader(fragmentShader);
 
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
