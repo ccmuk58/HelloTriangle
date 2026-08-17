@@ -63,6 +63,17 @@ local.properties
 .builds
 *.dotCover
 
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build
+x64/
+x86/
+Debug/
+Release/
+
 ## TODO: If you have NuGet Package Restore enabled, uncomment this
 #packages/
 
