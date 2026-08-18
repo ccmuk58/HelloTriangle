@@ -1,7 +1,7 @@
-#include "HelloD3D11Application.hpp"
+#include "HelloTriangleApplication.hpp"
 
 int main()
 {
-	HelloD3D11Application application{ "D3D11 - Hello Triangle" };
+	HelloTriangleApplication application{ "D3D11 - Hello Triangle" };
 	application.Run();
 }
