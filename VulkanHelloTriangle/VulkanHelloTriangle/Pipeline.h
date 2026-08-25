@@ -47,5 +47,6 @@ namespace Core {
 		Pipeline(Pipeline&&) = delete;
 
 		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);
+		VkPipeline GetGraphicsPipeline() const { return graphicsPipeline; }
 	};
 }
