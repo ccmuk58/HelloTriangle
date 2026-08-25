@@ -7,7 +7,6 @@ namespace Core {
 	struct PipelineConfigInfo {
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-		VkPipelineViewportStateCreateInfo viewportInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
 		VkPipelineMultisampleStateCreateInfo multisampleInfo;
 		VkPipelineColorBlendAttachmentState colorBlendAttachment;
