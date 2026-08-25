@@ -11,6 +11,7 @@ namespace App {
 	}
 
 	FirstApp::~FirstApp() {
+		pipeline.reset();
 		vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 	}
 
@@ -92,11 +93,25 @@ namespace App {
 
 	void FirstApp::DrawFrame()
 	{
+		uint32_t imageIndex{};
+		VkResult result = swapChain.AcquireNextImage(&imageIndex);
+
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+			throw std::runtime_error{ "failed to acquire swap chain image" };
+		}
+
+		result = swapChain.SubmitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+			throw std::runtime_error{ "failed to present swap chain image" };
+		}
 	}
 
 	void FirstApp::Run() {
 		while (!window.IsClosed()) {
 			glfwPollEvents();
+			DrawFrame();
 		}
+
+		vkDeviceWaitIdle(device.GetDevice());
 	}
 }
