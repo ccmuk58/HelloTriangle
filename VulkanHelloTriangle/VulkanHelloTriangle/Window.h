@@ -1,15 +1,6 @@
-//Window.h
-
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <string>
-#include <string_view>
-
 namespace Core {
-
 	class Window {
 	private:
 		GLFWwindow* window{ nullptr };
@@ -28,5 +19,6 @@ namespace Core {
 		Window& operator=(const Window& other) = delete;
 
 		bool IsClosed();
+		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 	};
 }

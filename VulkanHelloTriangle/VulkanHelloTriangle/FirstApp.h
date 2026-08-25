@@ -4,6 +4,7 @@
 
 #include "Window.h"
 #include "Pipeline.h"
+#include "Device.h"
 
 namespace App {
 	class FirstApp {
@@ -12,7 +13,14 @@ namespace App {
 		static constexpr int height{ 600 };
 
 		Core::Window window{ width, height, "HELLO VULKAN!" };
-		Core::Pipeline pipeline{ "simple_vs.vert.spv", "simple_fs.frag.spv" };
+		Core::Device device{ window };
+		Core::Pipeline pipeline
+		{ 
+			device, 
+			"simple_vs.vert.spv", 
+			"simple_fs.frag.spv" , 
+			Core::Pipeline::DefaultPipelineConfigInfo(width, height)
+		};
 
 	public:
 		FirstApp() = default;

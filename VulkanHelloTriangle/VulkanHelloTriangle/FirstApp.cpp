@@ -1,5 +1,4 @@
-// FirstApp.cpp
-
+#include "stdafx.h"
 #include "FirstApp.h"
 
 namespace App {
