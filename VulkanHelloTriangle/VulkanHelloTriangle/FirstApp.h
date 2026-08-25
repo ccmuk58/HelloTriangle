@@ -16,7 +16,7 @@ namespace App {
 		void CreateCommandBuffers();
 		void DrawFrame();
 
-		Core::Window window{ width, height, "Vulkan - HELLO Triangle" };
+		Core::Window window{ width, height, "Vulkan - Hello Triangle" };
 		Core::Device device{ window };
 		Core::SwapChain swapChain{ device, window.GetExtent() };
 		std::unique_ptr<Core::Pipeline> pipeline;
