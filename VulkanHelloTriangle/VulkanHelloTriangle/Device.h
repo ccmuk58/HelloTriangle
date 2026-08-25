@@ -70,7 +70,7 @@ namespace Core {
 		Device& operator=(Device&&) = delete;
 
 		VkCommandPool GetCommandPool() const { return commandPool; }
-		VkDevice GetDeivce() const { return device; }
+		VkDevice GetDevice() const { return device; }
 		VkSurfaceKHR GetSurface() const { return surface; }
 		VkQueue GetGraphicsQueue() const { return graphicsQueue; }
 		VkQueue GetPresentQueue() const { return presentQueue; }
