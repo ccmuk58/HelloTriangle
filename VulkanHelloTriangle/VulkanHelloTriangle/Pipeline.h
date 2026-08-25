@@ -5,6 +5,20 @@
 namespace Core {
 
 	struct PipelineConfigInfo {
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+		VkPipelineViewportStateCreateInfo viewportInfo;
+		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+		VkPipelineMultisampleStateCreateInfo multisampleInfo;
+		VkPipelineColorBlendAttachmentState colorBlendAttachment;
+		VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+		VkPipelineLayout pipelineLayout{ nullptr };
+		VkRenderPass renderPass{ nullptr };
+		uint32_t subPass{ 0 };
+
+		VkViewport viewport;
+		VkRect2D scissor;
 	};
 
 	class Pipeline {
@@ -20,7 +34,7 @@ namespace Core {
 			const std::string_view& fragFilePath,
 			const PipelineConfigInfo& configInfo);
 
-		void CreateShaderModule(const std::vector<char*>& code, VkShaderModule* shaderModule);
+		void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
 	public:
 		Pipeline(Device& device,
@@ -28,7 +42,7 @@ namespace Core {
 			const std::string_view& fragFilePath,
 			const PipelineConfigInfo& configInfo);
 
-		~Pipeline() {}
+		~Pipeline();
 
 		Pipeline(const Pipeline&) = delete;
 		Pipeline(Pipeline&&) = delete;
