@@ -12,7 +12,7 @@ namespace App {
 		static constexpr int width{ 800 };
 		static constexpr int height{ 600 };
 
-		Core::Window window{ width, height, "HELLO VULKAN!" };
+		Core::Window window{ width, height, "VULKAN - HELLO TRIANGLE" };
 		Core::Device device{ window };
 		Core::Pipeline pipeline
 		{ 

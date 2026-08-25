@@ -21,10 +21,12 @@ namespace Core {
 		return buffer;
 	}
 
-	void Pipeline::CreateGraphicsPipeline(Device& device,
+	void Pipeline::CreateGraphicsPipeline(
+		Device& device,
 		const std::string_view& vertFilePath,
 		const std::string_view& fragFilePath,
-		const PipelineConfigInfo& configInfo) {
+		const PipelineConfigInfo& configInfo) 
+	{
 		auto vsCode{ ReadFile(vertFilePath) };
 		auto fsCode{ ReadFile(fragFilePath) };
 
@@ -45,8 +47,8 @@ namespace Core {
 	Pipeline::Pipeline(Device& device,
 		const std::string_view& vertFilePath,
 		const std::string_view& fragFilePath,
-		const PipelineConfigInfo& configInfo) : device{ device } {
-
+		const PipelineConfigInfo& configInfo) : device{ device } 
+	{
 		CreateGraphicsPipeline(device, vertFilePath, fragFilePath, configInfo);
 	}
 	PipelineConfigInfo Pipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height) {

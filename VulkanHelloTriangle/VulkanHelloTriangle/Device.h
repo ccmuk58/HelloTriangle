@@ -81,9 +81,9 @@ namespace Core {
 		VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
 #ifdef __DEBUG__MODE__
-		static constexpr bool enableValidationLayers{ false };
-#else
 		static constexpr bool enableValidationLayers{ true };
+#else
+		static constexpr bool enableValidationLayers{ false };
 #endif
 	};
 }
