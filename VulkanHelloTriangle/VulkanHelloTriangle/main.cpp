@@ -3,7 +3,8 @@
 
 #include <iostream>
 
-int main() {
+int main()
+{
 
 
 	App::FirstApp app{};
@@ -11,7 +12,8 @@ int main() {
 	try {
 		app.Run();
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception& e)
+	{
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}

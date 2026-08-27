@@ -1,7 +1,8 @@
 #pragma once
 
 namespace Core {
-	class Window {
+	class Window
+	{
 	private:
 		GLFWwindow* window{ nullptr };
 		const int width;

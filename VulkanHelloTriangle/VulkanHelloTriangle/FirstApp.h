@@ -6,7 +6,8 @@
 #include "Swapchain.h"
 
 namespace App {
-	class FirstApp {
+	class FirstApp
+	{
 	private:
 		static constexpr int width{ 800 };
 		static constexpr int height{ 600 };

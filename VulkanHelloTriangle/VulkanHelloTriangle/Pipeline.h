@@ -4,7 +4,8 @@
 
 namespace Core {
 
-	struct PipelineConfigInfo {
+	struct PipelineConfigInfo
+	{
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -20,7 +21,8 @@ namespace Core {
 		VkRect2D scissor;
 	};
 
-	class Pipeline {
+	class Pipeline
+	{
 	private:
 		Device& device;
 		VkPipeline graphicsPipeline;

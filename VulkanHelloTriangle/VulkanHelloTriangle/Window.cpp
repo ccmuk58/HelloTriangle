@@ -11,21 +11,25 @@ namespace Core {
 		InitWindow();
 	}
 
-	Window::~Window() {
+	Window::~Window()
+	{
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
 
-	bool Window::IsClosed() {
+	bool Window::IsClosed()
+	{
 		return glfwWindowShouldClose(window);
 	}
 
-	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
+	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
+	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
 			throw std::runtime_error{ "Failed to create window surface" };
 	}
 
-	void Window::InitWindow() {
+	void Window::InitWindow()
+	{
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

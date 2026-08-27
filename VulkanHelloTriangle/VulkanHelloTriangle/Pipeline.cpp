@@ -6,7 +6,8 @@
 #include <iostream>
 
 namespace Core {
-	std::vector<char> Pipeline::ReadFile(const std::string_view& filePath) {
+	std::vector<char> Pipeline::ReadFile(const std::string_view& filePath)
+	{
 		std::ifstream file{ filePath.data(), std::ios::ate | std::ios::binary };
 
 		if (!file.is_open())
@@ -24,7 +25,8 @@ namespace Core {
 	void Pipeline::CreateGraphicsPipeline(Device& device,
 		const std::string_view& vertFilePath,
 		const std::string_view& fragFilePath,
-		const PipelineConfigInfo& configInfo) {
+		const PipelineConfigInfo& configInfo) 
+	{
 		auto vsCode{ ReadFile(vertFilePath) };
 		auto fsCode{ ReadFile(fragFilePath) };
 
@@ -84,12 +86,14 @@ namespace Core {
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 		if (vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline)
-			!= VK_SUCCESS) {
+			!= VK_SUCCESS)
+		{
 			throw std::runtime_error{ "failed to create graphics pipeline" };
 		}
 	}
 
-	void Pipeline::CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) {
+	void Pipeline::CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
+	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = code.size();
@@ -102,18 +106,21 @@ namespace Core {
 	Pipeline::Pipeline(Device& device,
 		const std::string_view& vertFilePath,
 		const std::string_view& fragFilePath,
-		const PipelineConfigInfo& configInfo) : device{ device } {
+		const PipelineConfigInfo& configInfo) : device{ device }
+	{
 
 		CreateGraphicsPipeline(device, vertFilePath, fragFilePath, configInfo);
 	}
 
-	Pipeline::~Pipeline() {
+	Pipeline::~Pipeline()
+	{
 		vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
 		vkDestroyShaderModule(device.GetDevice(), vertShaderModule, nullptr);
 		vkDestroyShaderModule(device.GetDevice(), fragShaderModule, nullptr);
 	}
 
-	PipelineConfigInfo Pipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height) {
+	PipelineConfigInfo Pipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height)
+	{
 		PipelineConfigInfo configInfo{};
 
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

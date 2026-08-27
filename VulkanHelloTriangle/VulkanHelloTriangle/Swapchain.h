@@ -11,7 +11,8 @@
 
 namespace Core {
 
-    class SwapChain {
+    class SwapChain
+    {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -30,7 +31,8 @@ namespace Core {
         uint32_t GetWidth() { return swapChainExtent.width; }
         uint32_t GetHeight() { return swapChainExtent.height; }
 
-        float ExtentAspectRatio() {
+        float ExtentAspectRatio()
+        {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
         }
         VkFormat findDepthFormat();
