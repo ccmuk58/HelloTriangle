@@ -24,26 +24,45 @@ namespace App {
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
+		// temporary staging buffer
+		VkBuffer stagingBuffer{ VK_NULL_HANDLE };
+		VkDeviceMemory stagingBufferMemory{ VK_NULL_HANDLE };
+
 		device.CreateBuffer(
 			bufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			vertexBuffer,
-			vertexBufferMemory);
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
 
+		// map staging buffer memory
 		void* mappedData{ nullptr };
-
-		if (vkMapMemory(device.GetDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedData) != VK_SUCCESS)
+		if (vkMapMemory(device.GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &mappedData) != VK_SUCCESS)
 		{
 			throw std::runtime_error{
-				"failed to map vertex buffer memory"
+				"failed to map staging buffer memory"
 			};
 		}
 
+		// copy vertex data to staging buffer
 		std::memcpy(mappedData, vertices.data(), static_cast<size_t>(bufferSize));
+		
+		vkUnmapMemory(device.GetDevice(), stagingBufferMemory);
 
-		vkUnmapMemory(device.GetDevice(), vertexBufferMemory);
+		// create vertex buffer
+		device.CreateBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			vertexBuffer,
+			vertexBufferMemory);
+
+		// copy data from staging buffer to vertex buffer
+		device.CopyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+		// destroy staging buffer
+		vkDestroyBuffer(device.GetDevice(), stagingBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), stagingBufferMemory, nullptr);
 	}
 
 	void FirstApp::CreatePipelineLayout()
