@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Pipeline.h"
+#include "Vertex.h"
 
 #include <fstream>
 #include <stdexcept>
@@ -50,12 +51,16 @@ namespace Core {
 		shaderStages[1].flags = 0;
 		shaderStages[1].pSpecializationInfo = nullptr;
 
+		auto bindingDescription{ Vertex::GetBindingDescription() };
+		auto attributeDescriptions{ Vertex::GetAttributeDescriptions() };
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr;
+
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		VkPipelineViewportStateCreateInfo viewportInfo{};
 		viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

@@ -6,6 +6,7 @@
 namespace App {
 	FirstApp::FirstApp()
 	{
+		CreateVertexBuffer();
 		CreatePipelineLayout();
 		CreatePipeline();
 		CreateCommandBuffers();
@@ -13,8 +14,36 @@ namespace App {
 
 	FirstApp::~FirstApp()
 	{
+		vkDestroyBuffer(device.GetDevice(), vertexBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), vertexBufferMemory, nullptr);
 		pipeline.reset();
 		vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+	}
+
+	void FirstApp::CreateVertexBuffer()
+	{
+		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+		device.CreateBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			vertexBuffer,
+			vertexBufferMemory);
+
+		void* mappedData{ nullptr };
+
+		if (vkMapMemory(device.GetDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedData) != VK_SUCCESS)
+		{
+			throw std::runtime_error{
+				"failed to map vertex buffer memory"
+			};
+		}
+
+		std::memcpy(mappedData, vertices.data(), static_cast<size_t>(bufferSize));
+
+		vkUnmapMemory(device.GetDevice(), vertexBufferMemory);
 	}
 
 	void FirstApp::CreatePipelineLayout()
@@ -81,12 +110,13 @@ namespace App {
 			vkCmdBeginRenderPass(
 				commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdBindPipeline(
-				commandBuffers[i],
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipeline->GetGraphicsPipeline());
+			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicsPipeline());
 
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+			VkBuffer vertexBuffers[] = { vertexBuffer };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+			vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 

@@ -170,6 +170,7 @@
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Swapchain.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
