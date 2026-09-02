@@ -7,18 +7,70 @@ namespace App {
 	FirstApp::FirstApp()
 	{
 		CreateVertexBuffer();
+		CreateIndexBuffer();
+
 		CreatePipelineLayout();
 		CreatePipeline();
+
 		CreateCommandBuffers();
 	}
 
 	FirstApp::~FirstApp()
 	{
+
+		vkDestroyBuffer(device.GetDevice(), indexBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), indexBufferMemory, nullptr);
+
 		vkDestroyBuffer(device.GetDevice(), vertexBuffer, nullptr);
 		vkFreeMemory(device.GetDevice(), vertexBufferMemory, nullptr);
+		
 		pipeline.reset();
 		vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 	}
+
+	void FirstApp::CreateIndexBuffer()
+	{
+		const VkDeviceSize bufferSize =
+			sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer{ VK_NULL_HANDLE };
+		VkDeviceMemory stagingBufferMemory{ VK_NULL_HANDLE };
+
+		// temporary staging buffer
+		device.CreateBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer,
+			stagingBufferMemory);
+
+		void* mappedData{ nullptr };
+
+		if (vkMapMemory(device.GetDevice(),stagingBufferMemory,0,bufferSize,0,&mappedData) != VK_SUCCESS)
+		{
+			throw std::runtime_error{
+				"failed to map index staging buffer memory"
+			};
+		}
+
+		std::memcpy(mappedData, indices.data(), static_cast<size_t>(bufferSize));
+
+		vkUnmapMemory(device.GetDevice(),stagingBufferMemory);
+
+		device.CreateBuffer(
+			bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			indexBuffer,
+			indexBufferMemory);
+
+		device.CopyBuffer(stagingBuffer, indexBuffer, bufferSize);
+		vkDestroyBuffer(device.GetDevice(), stagingBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), stagingBufferMemory, nullptr);
+	}
+
 
 	void FirstApp::CreateVertexBuffer()
 	{
@@ -134,8 +186,10 @@ namespace App {
 			VkBuffer vertexBuffers[] = { vertexBuffer };
 			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+			
+			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-			vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 
