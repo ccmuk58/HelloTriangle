@@ -5,6 +5,7 @@
 #include "Device.h"
 #include "Swapchain.h"
 #include "Vertex.h"
+#include "UniformBufferObject.h"
 
 #include <cstdint>
 
@@ -17,6 +18,11 @@ namespace App {
 
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
+		void CreateDescriptorSetLayout();
+		void CreateUniformBuffers();
+		void CreateDescriptorPool();
+		void CreateDescriptorSets();
+		void UpdateUniformBuffer(uint32_t imageIndex);
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
@@ -46,6 +52,13 @@ namespace App {
 		std::unique_ptr<Core::Pipeline> pipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
+
+		VkDescriptorSetLayout descriptorSetLayout{ VK_NULL_HANDLE };
+		VkDescriptorPool descriptorPool{ VK_NULL_HANDLE };
+		std::vector<VkBuffer> uniformBuffers;
+		std::vector<VkDeviceMemory> uniformBuffersMemory;
+		std::vector<void*> uniformBuffersMapped;
+		std::vector<VkDescriptorSet> descriptorSets;
 
 		FirstApp(const FirstApp&) = delete;
 		FirstApp& operator=(const FirstApp&) = delete;
