@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "FirstApp.h"
-#
+
 #include <stdexcept>
-#include <chrono>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace App {
 	FirstApp::FirstApp()
@@ -11,30 +9,23 @@ namespace App {
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 
-		CreateDescriptorSetLayout();
-		CreateUniformBuffers();
-		CreateDescriptorPool();
-		CreateDescriptorSets();
-
 		CreatePipelineLayout();
 		CreatePipeline();
+
 		CreateCommandBuffers();
 	}
 
 	FirstApp::~FirstApp()
 	{
-		for (size_t i = 0; i < uniformBuffers.size(); ++i)
-		{
-			vkDestroyBuffer(device.GetDevice(), uniformBuffers[i], nullptr);
-			vkFreeMemory(device.GetDevice(), uniformBuffersMemory[i], nullptr);
-		}
 
-		vkDestroyDescriptorPool(device.GetDevice(), descriptorPool, nullptr);
+		vkDestroyBuffer(device.GetDevice(), indexBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), indexBufferMemory, nullptr);
 
+		vkDestroyBuffer(device.GetDevice(), vertexBuffer, nullptr);
+		vkFreeMemory(device.GetDevice(), vertexBufferMemory, nullptr);
+		
 		pipeline.reset();
 		vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(
-			device.GetDevice(), descriptorSetLayout, nullptr);
 	}
 
 	void FirstApp::CreateIndexBuffer()
@@ -79,6 +70,7 @@ namespace App {
 		vkDestroyBuffer(device.GetDevice(), stagingBuffer, nullptr);
 		vkFreeMemory(device.GetDevice(), stagingBufferMemory, nullptr);
 	}
+
 
 	void FirstApp::CreateVertexBuffer()
 	{
@@ -125,161 +117,12 @@ namespace App {
 		vkFreeMemory(device.GetDevice(), stagingBufferMemory, nullptr);
 	}
 
-	void FirstApp::CreateDescriptorSetLayout()
-	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding{};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &uboLayoutBinding;
-
-		if (vkCreateDescriptorSetLayout(
-			device.GetDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create descriptor set layout");
-		}
-	}
-
-	void FirstApp::CreateUniformBuffers()
-	{
-		const VkDeviceSize bufferSize = sizeof(Core::UniformBufferObject);
-		const size_t imageCount = swapChain.GetImageCount();
-
-		uniformBuffers.resize(imageCount);
-		uniformBuffersMemory.resize(imageCount);
-		uniformBuffersMapped.resize(imageCount);
-
-		for (size_t i = 0; i < imageCount; ++i)
-		{
-			device.CreateBuffer(
-				bufferSize,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-				VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				uniformBuffers[i],
-				uniformBuffersMemory[i]);
-
-			if (vkMapMemory(
-				device.GetDevice(),
-				uniformBuffersMemory[i],
-				0,
-				bufferSize,
-				0,
-				&uniformBuffersMapped[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to map uniform buffer memory");
-			}
-		}
-	}
-
-	void FirstApp::CreateDescriptorPool()
-	{
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount =
-			static_cast<uint32_t>(swapChain.GetImageCount());
-
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
-		poolInfo.maxSets = static_cast<uint32_t>(swapChain.GetImageCount());
-
-		if (vkCreateDescriptorPool(
-			device.GetDevice(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create descriptor pool");
-		}
-	}
-
-	void FirstApp::CreateDescriptorSets()
-	{
-		const size_t imageCount = swapChain.GetImageCount();
-
-		std::vector<VkDescriptorSetLayout> layouts(
-			imageCount, descriptorSetLayout);
-
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(imageCount);
-		allocInfo.pSetLayouts = layouts.data();
-
-		descriptorSets.resize(imageCount);
-
-		if (vkAllocateDescriptorSets(
-			device.GetDevice(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to allocate descriptor sets");
-		}
-
-		for (size_t i = 0; i < imageCount; ++i)
-		{
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(Core::UniformBufferObject);
-
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptorSets[i];
-			descriptorWrite.dstBinding = 0;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pBufferInfo = &bufferInfo;
-
-			vkUpdateDescriptorSets(
-				device.GetDevice(), 1, &descriptorWrite, 0, nullptr);
-		}
-	}
-
-	void FirstApp::UpdateUniformBuffer(uint32_t imageIndex)
-	{
-		static const auto startTime = std::chrono::high_resolution_clock::now();
-
-		const auto currentTime = std::chrono::high_resolution_clock::now();
-		const float time =
-			std::chrono::duration<float>(
-				currentTime - startTime).count();
-
-		Core::UniformBufferObject ubo{};
-
-		ubo.model = glm::rotate(
-			glm::mat4{ 1.0f },
-			time * glm::radians(90.0f),
-			glm::vec3{ 0.0f, 0.0f, 1.0f });
-
-		ubo.view = glm::lookAt(
-			glm::vec3{ 2.0f, 2.0f, 2.0f },
-			glm::vec3{ 0.0f, 0.0f, 0.0f },
-			glm::vec3{ 0.0f, 0.0f, 1.0f });
-
-		ubo.proj = glm::perspective(
-			glm::radians(45.0f),
-			swapChain.ExtentAspectRatio(),
-			0.1f,
-			10.0f);
-
-		ubo.proj[1][1] *= -1.0f;
-
-		std::memcpy(
-			uniformBuffersMapped[imageIndex],
-			&ubo,
-			sizeof(ubo));
-	}
 	void FirstApp::CreatePipelineLayout()
 	{
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.pSetLayouts = nullptr;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -340,16 +183,6 @@ namespace App {
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicsPipeline());
 
-			vkCmdBindDescriptorSets(
-				commandBuffers[i],
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout,
-				0,
-				1,
-				&descriptorSets[i],
-				0,
-				nullptr);
-
 			VkBuffer vertexBuffers[] = { vertexBuffer };
 			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -376,9 +209,6 @@ namespace App {
 		{
 			throw std::runtime_error{ "failed to acquire swap chain image" };
 		}
-
-		swapChain.WaitForImage(imageIndex);
-		UpdateUniformBuffer(imageIndex);
 
 		result = swapChain.SubmitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)

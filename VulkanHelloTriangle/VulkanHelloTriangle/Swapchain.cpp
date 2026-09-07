@@ -80,13 +80,11 @@ namespace Core {
 	VkResult SwapChain::SubmitCommandBuffers(
 		const VkCommandBuffer* buffers, uint32_t* imageIndex)
 	{
-		/*
 		if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
 		{
 			vkWaitForFences(device.GetDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
 		}
 		imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
-		*/
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -454,20 +452,5 @@ namespace Core {
 			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-	}
-
-	void SwapChain::WaitForImage(uint32_t imageIndex)
-	{
-		if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-		{
-			vkWaitForFences(
-				device.GetDevice(),
-				1,
-				&imagesInFlight[imageIndex],
-				VK_TRUE,
-				UINT64_MAX);
-		}
-
-		imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 	}
 }

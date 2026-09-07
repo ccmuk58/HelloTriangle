@@ -40,8 +40,6 @@ namespace Core {
         VkResult AcquireNextImage(uint32_t* imageIndex);
         VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
-        void WaitForImage(uint32_t imageIndex);
-
     private:
         void CreateSwapChain();
         void CreateImageViews();
